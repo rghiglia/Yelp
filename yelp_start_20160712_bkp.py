@@ -262,11 +262,11 @@ df.info()
 df.head()
 nn = df_summarize(df)
 
-grp = df.groupby(['business_id', 'review_id'])
-grp_s = grp.size().sort_values(ascending=False)
-grp_s[0:5]
+#grp = df.groupby(['business_id', 'review_id'])
+#grp_s = grp.size().sort_values(ascending=False)
+#grp_s[0:5]
 
-df.groupby(['business_id', 'review_id']).count()
+#!df.groupby(['business_id', 'review_id']).count()
 
 bID_grp = df[['business_id', 'review_id']].groupby(['business_id']).count()
 bID_grp.sort_values('review_id', ascending=False, inplace=True)
@@ -291,30 +291,30 @@ pd.rolling_mean(s, 100).plot(color='r')
 
 
 # Time-varying nature of ratings seems quite interesting!
-#
-## Review
-#df.info()
-#
-#bID_grp = df['business_id'].count()
-#
-##pd.value_counts(d[["col_title1","col_title2"]].values.ravel()) 
-#grp = pd.value_counts(df[['business_id']].values.ravel()) # .ravel() flattens the dataframe
-#grp = pd.value_counts(df['business_id'])
-#
-## I think what you had in mind was:
-#bID_grp = df.groupby(['business_id', 'review_id']) # or
-#bID_grp = df.groupby(['business_id', 'user_id', 'review_id']) # possibly same reviewer made mutliple reviews to the same place; that could be an indication of change in management or other relevant change especially if dates are farther apart
-#bID_grp.count()
-#
-#df['stars'] = df['stars'].astype(int)
-#bID_grp = df.groupby(['business_id', 'user_id'])
-#stat = bID_grp['stars']
-#stat.agg('mean')
-#df_tmp = stat.agg('count')
-#type(df_tmp) # Series with a multi-index I assume
-## Can you sort it?
-## Sort by most popular b_id then reviewer largest number of reviews
-## Possible, will look into if necessary
+
+# Review
+df.info()
+
+bID_grp = df['business_id'].count()
+
+#pd.value_counts(d[["col_title1","col_title2"]].values.ravel()) 
+grp = pd.value_counts(df[['business_id']].values.ravel()) # .ravel() flattens the dataframe
+grp = pd.value_counts(df['business_id'])
+
+# I think what you had in mind was:
+bID_grp = df.groupby(['business_id', 'review_id']) # or
+bID_grp = df.groupby(['business_id', 'user_id', 'review_id']) # possibly same reviewer made mutliple reviews to the same place; that could be an indication of change in management or other relevant change especially if dates are farther apart
+bID_grp.count()
+
+df['stars'] = df['stars'].astype(int)
+bID_grp = df.groupby(['business_id', 'user_id'])
+stat = bID_grp['stars']
+stat.agg('mean')
+df_tmp = stat.agg('count')
+type(df_tmp) # Series with a multi-index I assume
+# Can you sort it?
+# Sort by most popular b_id then reviewer largest number of reviews
+# Possible, will look into if necessary
 
 
 # In simplest form:
@@ -324,183 +324,54 @@ df_b_id = pd.DataFrame({'b_id': grp.index, 'cnt': grp.values})
 df_b_id.head()
 df_b_id['cnt'].plot(figsize=fgsz)
 
-
-# 7/12/2016: Converting to date objects is very slow
-# I will simply choose a subset and keep it in # of reviews
-
 # Thing is you have to control for age, so maybe you want to look at reviews per week
 # There might be methods for aggregating over time
 
 #by_week = df['date'].groupby(lambda x: x.week)
 ## Didn't work
 
-## Probably need to convert date to appropriate date obect
-##https://docs.python.org/2/library/datetime.html#datetime.datetime.strptime
-#from datetime import datetime
-#date_object = datetime.strptime('Jun 1 2005  1:33PM', '%b %d %Y %I:%M%p')
-#n = len(df)
-### This will take an ENORMOUS amount of time!
-##for (i, d) in enumerate(df['date']):
-##    print "%i %i" % (i, n)
-##    df['date'].iloc[i] = datetime.strptime(d, '%Y-%m-%d')
-#
-#
-## Still incredibly slow!
-#d_tmp = set(df['date'])
-#nU = len(d_tmp)
-#for (i, d) in enumerate(d_tmp):
-#    print "%i %i" % (i, nU)
-#    d_tpp = datetime.strptime(d, '%Y-%m-%d')
-#    df['date'][df['date']==d] = d_tpp
-#
-#
-## Maybe then better to store session from here
-#
-## Will review tomorrow
-#
-## Save session
-#dnm = r'C:\Users\rghiglia\Documents\ML_ND\Yelp'
-#fnmO = (dnm + '\\' + 'yelp_data.pkl')
-#import time
-#import dill                            #pip install dill --user
-#start_time = time.time()
-#dill.dump_session(fnmO)
-#print("--- %s seconds ---" % (time.time() - start_time))
-## It seems prohibitively long :(
-#
-#
-## Load session
-#dnm = r'C:\Users\rghiglia\Documents\ML_ND\Yelp'
-#import time
-#import dill                            #pip install dill --user
-#start_time = time.time()
-#dill.load_session(fnmO)
-#print("--- %s seconds ---" % (time.time() - start_time))
-
-cnt_mx = 150
-df_b_id_sh = df_b_id[df_b_id.cnt>=cnt_mx]
-
-i0 = 6
-revs = dfs['review'][dfs['review']['business_id']==df_b_id_sh.ix[i0,'b_id']]
-s = revs['stars'].astype(int)
-
-ma = 50
-fig = plt.figure(figsize=fgsz)
-s.plot(alpha=0.4)
-pd.rolling_mean(s, ma).plot(color='r')
-#plt.vlines(t_x[i], 1, 5, color='k', linewidth=2)
-#plt.show()
+# Probably need to convert date to appropriate date obect
+#https://docs.python.org/2/library/datetime.html#datetime.datetime.strptime
+from datetime import datetime
+date_object = datetime.strptime('Jun 1 2005  1:33PM', '%b %d %Y %I:%M%p')
+n = len(df)
+## This will take an ENORMOUS amount of time!
+#for (i, d) in enumerate(df['date']):
+#    print "%i %i" % (i, n)
+#    df['date'].iloc[i] = datetime.strptime(d, '%Y-%m-%d')
 
 
-# Detecting a shift in rating
-# Split sample in two, and measure conditional mean
-# Slide the transition time
-
-n = len(df_b_id_sh)
-m_r = np.zeros((n, 1))      # mean review score
-d_r = np.zeros((n, 1))      # difference in mean review score
-t_x = np.zeros((n, 1))      # time of shift
-txp = np.zeros((n, 1))      # time of shift in %
-t00 = 49
-ma = 50
-n_mx_tmp = 200
-for i in range(n_mx_tmp):
-    revs = dfs['review'][dfs['review']['business_id']==df_b_id_sh.ix[i,'b_id']]
-    s = revs['stars'].astype(int)
-    m1, m2 = [], []
-    dn = int(len(s)) / 8
-    t0 = max([t00, dn])
-#    print 't0 = {}'.format(t0)
-    for t in range(t0,len(s)-t0):
-        m1.append(s[:t].mean())
-        m2.append(s[t:-1].mean())
-    m_r[i] = s.mean()
-    d_r[i] = np.abs(np.array(m2)-np.array(m1)).max()
-    i_x0 = s.index[np.abs(np.array(m2)-np.array(m1)).argmax()]
-    t_x[i] = t0 + i_x0
-    txp[i] = float(i_x0) / len(s)
-    print "Business ({}/{}): m = {:1.2f}, d = {:1.2f} ".format(i, n, m_r[i][0], d_r[i][0])
-    
-#    fig = plt.figure(figsize=fgsz)
-#    s.plot(alpha=0.4)
-#    pd.rolling_mean(s, 50).plot(color='r')
-#    plt.vlines(t_x[i], 1, 5, color='k', linewidth=2)
-#    plt.show()
+# Still incredibly slow!
+d_tmp = set(df['date'])
+nU = len(d_tmp)
+for (i, d) in enumerate(d_tmp):
+    print "%i %i" % (i, nU)
+    d_tpp = datetime.strptime(d, '%Y-%m-%d')
+    df['date'][df['date']==d] = d_tpp
 
 
-fig = plt.figure(figsize=fgsz)
-plt.scatter(m_r, d_r)
-plt.title("Rating's Jump vs. Mean Rating")
-plt.xlabel('Mean Rating')
-plt.ylabel("Rating's Jump")
+# Maybe then better to store session from here
 
-# Ok, you'll let it run afterwards
-# What would you do next? Clustering
+# Will review tomorrow
 
-# TODO: Apply your clustering algorithm of choice to the reduced data 
-from sklearn.cluster import KMeans
-from sklearn.metrics import silhouette_score
-
-data = pd.DataFrame(np.array(([m_r[:, 0], d_r[:, 0]])).T, columns=['Mean', 'Jump'])
-data = data.iloc[:n_mx_tmp, :]
-
-n_clusters = [2, 3]
-nC = len(n_clusters)
-score = np.zeros((nC, 1))
-clr = ['r', 'b', 'y', 'm', 'c', 'k']
-
-for i, n_cl in enumerate(n_clusters):
-    print "Fitting with # clusters = %i" % n_cl
-    clf = KMeans(init='k-means++', n_clusters=n_cl, n_jobs=1)
-    clf.fit(data)
-
-    # TODO: Predict the cluster for each data point
-    preds = clf.predict(data)
-
-    # TODO: Find the cluster centers
-    centers = clf.cluster_centers_
-
-#    # TODO: Predict the cluster for each transformed sample data point
-#    sample_preds = clf.predict(pca_samples)
-
-    fig = plt.figure(figsize=fgsz)
-    for j in range(n_cl):
-        ix = preds==j
-        plt.scatter(data.ix[ix,0], data.ix[ix,1], color=clr[j])
-    plt.show()
-    
-    
-    # TODO: Calculate the mean silhouette coefficient for the number of clusters chosen
-    score[i] = silhouette_score(data, clf.labels_)
-    print "Score (# clusters = %i) = %1.2f" % (n_cl, score[i])
-
-# Silhouette graph?
+# Save session
+dnm = r'C:\Users\rghiglia\Documents\ML_ND\Yelp'
+fnmO = (dnm + '\\' + 'yelp_data.pkl')
+import time
+import dill                            #pip install dill --user
+start_time = time.time()
+dill.dump_session(fnmO)
+print("--- %s seconds ---" % (time.time() - start_time))
+# It seems prohibitively long :(
 
 
-# Adding DBSCAN analysis
-from sklearn.cluster import DBSCAN
-clsDB = DBSCAN(eps=0.2, min_samples=2) # manually optimized on eps
-cls_fit = clsDB.fit(data)
-scoreDB = silhouette_score(data, cls_fit.labels_)
-print "Score (# clusters = %i) = %1.2f" % (len(set(cls_fit.labels_)), scoreDB)
-
-# Plot
-ax = plt.subplot(111, aspect='equal')
-labs = cls_fit.labels_ - cls_fit.labels_.min()
-labsU = set(labs)
-for j in range(len(labsU)):
-    ix = labs==j
-    ax.scatter(data.ix[ix,0], data.ix[ix,1], color=clr[j])
-
-
-# Start thinking about the next question: cultural bias
-# Explain rating (=target) via features. Careful: this problem is multi-label
-# Or actually region = target and rating is one of the features
-# Or is it just 'regressing' region on rating and some other features? Yeah, kind of the same as ML it
-
-
-# Before you move next you might want to encapsulate some of the above, at least
-# in terms of getting the data and restricting to restaurants, e.g.
+# Load session
+dnm = r'C:\Users\rghiglia\Documents\ML_ND\Yelp'
+import time
+import dill                            #pip install dill --user
+start_time = time.time()
+dill.load_session(fnmO)
+print("--- %s seconds ---" % (time.time() - start_time))
 
 
 
